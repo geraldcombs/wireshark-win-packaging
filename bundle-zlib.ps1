@@ -27,7 +27,7 @@ foreach ($requiredCmd in @("7z", "lib") ) {
     }
 }
 
-$dmrPrefix = "$python $pwd\externals\download-mingw-rpm\download-mingw-rpm.py -z -m --deps -r $obsRepository"
+$dmrPrefix = "$python $pwd\externals\download-mingw-rpm\download-mingw-rpm.py -z -m -r $obsRepository"
 
 cd $buildDir
 
