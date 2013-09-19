@@ -18,6 +18,8 @@ if ($python) {
     Exit 1
 }
 
+# It looks like we don't really need 7-Zip:
+# http://vcsjones.com/2012/11/11/unzipping-files-with-powershell-in-server-core-the-new-way/
 if (Test-Path "C:\Program Files\7-Zip") {
     $env:Path = $env:Path + ";C:\Program Files\7-Zip"
 }
