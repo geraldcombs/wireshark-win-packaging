@@ -18,7 +18,11 @@ if ($python) {
     Exit 1
 }
 
+if (Test-Path "C:\Program Files\7-Zip") {
+    $env:Path = $env:Path + ";C:\Program Files\7-Zip"
+}
 foreach ($requiredCmd in @("7z", "lib") ) {
+    # XXX We don't exit properly here.
     try {
         Get-Command -CommandType Application $requiredCmd
     } catch {
@@ -52,7 +56,18 @@ foreach ($bits in @(32, 64) ) {
 
     $pkgName = Get-Childitem . -Name -File zlib-1*.zip | Select -first 1
     $pkgName = $pkgName.Replace(".zip", "");
+    $pkgVersion = $pkgName.replace("zlib-", "");
     $pkgName = "$pkgName-win$bits"
+    
+    @"
+// zlib OBS $project package information
+// DO NOT EDIT
+#defines {
+    obs-win${bits}-name: $pkgName;
+    obs-win${bits}-version: $pkgVersion;
+}
+"@ | Out-File -FilePath "..\..\zlib-win${bits}-obs-info.inc" -Encoding utf8
+    
     Write-Host "Preparing $pkgName"
 
     New-Item -Name $pkgName -ItemType directory
@@ -68,9 +83,10 @@ foreach ($bits in @(32, 64) ) {
     # obs/zlib/$bits
     Set-Location ..
 
-    7z a -r "$pkgName.zip" "$pkgName"
-    Move-Item "$pkgName.zip" ..\..
-
     # obs/zlib
     Set-Location ..
 }
+
+Set-Location ..\..
+
+Write-NuGetPackage .\zlib-obs.autopackage

@@ -1,0 +1,48 @@
+// Adapted from http://coapp.org/tutorials/autopackage-guide.html
+
+// Nuget (output) package information
+@import "obs\zlib-pkg-version.inc";
+
+// openSUSE Build Service (input) package information
+@import "obs\zlib-win32-obs-info.inc";
+@import "obs\zlib-win64-obs-info.inc";
+
+nuget {
+    nuspec {
+        id = zlib-obs;
+        version : ${package-version};
+        title: ZLib compression library;
+        authors: { "Jean-loup Gailly", "Mark Adler" };
+        owners: Gerald Combs;
+        licenseUrl: "http://zlib.net/zlib_license.html";
+        projectUrl: "https://build.opensuse.org/package/show/windows:mingw:win64/mingw64-zlib";
+        iconUrl: "http://zlib.net/images/zlib3d-b1.png";
+        requireLicenseAcceptance:false;
+        summary: The openSUSE Build Service windows:mingw:win32 and windows:mingw:win64 zlib libraries;
+        description: @"A native zlib library linked against msvcrt.dll.
+        zlib homepage:  <a href='http://zlib.net'>http://zlib.net</a>";
+        releaseNotes: "Release of zlib 1.2.7 libraries.";
+        copyright: Copyright 2013;
+        tags: { zlib, native, obs };
+    }
+
+    files {
+        [Win32,Release] {
+            include += obs\zlib\32\${obs-win32-name}\include\*.h;
+            bin += obs\zlib\32\${obs-win32-name}\bin\*.dll;
+            lib += obs\zlib\32\${obs-win32-name}\lib\*.lib;
+        }
+        [x64,Release] {
+            include += obs\zlib\64\${obs-win64-name}\include\*.h;
+            bin += obs\zlib\64\${obs-win64-name}\bin\*.dll;
+            lib += obs\zlib\64\${obs-win64-name}\lib\*.lib;
+        }
+    }
+
+    targets {
+        Defines += HAVE_ZLIB;
+        
+        [dynamic]
+        Defines += ZLIB_DLL;
+    }
+}
