@@ -1,0 +1,78 @@
+// Adapted from http://coapp.org/tutorials/autopackage-guide.html
+
+// Nuget (output) package information
+@import "obs\gtk3-pkg-version.inc";
+
+// openSUSE Build Service (input) package information
+@import "obs\gtk3-win32-obs-info.inc";
+@import "obs\gtk3-win64-obs-info.inc";
+
+nuget {
+    nuspec {
+        id = gtk3-obs;
+        version : ${package-version};
+        title: GTK+ 3 user interface library;
+        authors: { "Peter Mattis", "Spencer Kimball", "Josh MacDonald" };
+        owners: Gerald Combs;
+        licenseUrl: "http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html";
+        projectUrl: "https://build.opensuse.org/package/show/windows:mingw:win64/mingw64-gtk3";
+        iconUrl: "http://www.gtk.org/images/gtk-logo.ico";
+        requireLicenseAcceptance:false;
+        summary: The openSUSE Build Service windows:mingw:win32 and windows:mingw:win64 GTK+ libraries;
+        description: @"Native GTK+ and dependent libraries linked against msvcrt.dll.
+        GTK+ homepage:  <a href='http://www.gtk.org/'>http://www.gtk.org</a>";
+        releaseNotes: "Release of GTK+ 3 and its dependencies.";
+        copyright: Copyright 2013;
+        tags: { gtk, glib, native, obs };
+    }
+
+    // Add non-standard directories using CoApp's layout
+    // XXX These end up in the main package despite using "redist"
+
+    #defines {
+        d_etc   = ${build_root}\etc\${conditionFolder},  
+        d_share = ${build_root}\share\${conditionFolder},  
+    }
+
+    etc += {
+        #output {
+            package = redist;
+        };
+        #add-each-file : ::nuget.[redist]targets.[${condition}].CopyToOutput;
+        #destination : ${d_etc};  
+    }
+        
+    share += {
+        #output {
+            package = redist;
+        };
+        #add-each-file : ::nuget.[redist]targets.[${condition}].CopyToOutput;
+        #destination : ${d_share};  
+    }
+    
+    files {
+        [Win32,Release] {
+            include += obs\gtk3\32\${obs-win32-name}\include\*;
+            bin += obs\gtk3\32\${obs-win32-name}\bin\*.dll;
+            bin += obs\gtk3\32\${obs-win32-name}\bin\*.exe;
+            lib += obs\gtk3\32\${obs-win32-name}\lib\*.lib;
+            etc += obs\gtk3\32\${obs-win32-name}\etc\**\*;
+            share += obs\gtk3\32\${obs-win32-name}\share\**\*;
+        }
+        [x64,Release] {
+            include += obs\gtk3\64\${obs-win64-name}\include\*;
+            bin += obs\gtk3\64\${obs-win64-name}\bin\*.dll;
+            bin += obs\gtk3\64\${obs-win64-name}\bin\*.exe;
+            lib += obs\gtk3\64\${obs-win64-name}\lib\*.lib;
+            etc += obs\gtk3\64\${obs-win64-name}\etc\**\*;
+            share += obs\gtk3\64\${obs-win64-name}\share\**\*;
+        }
+    }
+
+    targets {
+        Defines += HAVE_GTK3;
+        
+        [dynamic]
+        Defines += GTK3_DLL;
+    }
+}

@@ -68,6 +68,10 @@ foreach ($bits in @(32, 64) ) {
     $pkgName = Get-Childitem . -Name -File zlib-1*.zip | Select -first 1
     $pkgName = $pkgName.Replace(".zip", "");
     $pkgVersion = $pkgName.replace("zlib-", "");
+    if ( !$pkgName -or !$pkgVersion) {
+        Write-Error "Can't derive package name or version"
+        exit 1
+    }
     $pkgName = "$pkgName-win$bits"
     
     @"

@@ -1,7 +1,7 @@
 Set-PSDebug -Trace 1
 
 $obsRepository = "openSUSE_12.3"
-$buildDir = "obs\libcares2"
+$buildDir = "obs\gtk2"
 
 Write-Host -NoNewline "Looking for Python 3..."
 
@@ -33,7 +33,7 @@ foreach ($requiredCmd in @("7z", "lib") ) {
     }
 }
 
-$dmrPrefix = "$python $pwd\externals\download-mingw-rpm\download-mingw-rpm.py -z -m -r $obsRepository"
+$dmrPrefix = "$python $pwd\externals\download-mingw-rpm\download-mingw-rpm.py -z -m --deps -r $obsRepository"
 
 if (! (Test-Path $buildDir)) {
     try {
@@ -58,16 +58,21 @@ foreach ($bits in @(32, 64) ) {
         $machine = "x64"
     }
 
-    Write-Host "Bundling libcares2 for win$bits / $machine"
-    foreach ($rpmPkg in @("libcares2", "libcares2-devel") ) {
+    Write-Host "Bundling GTK+ 2 for win$bits / $machine"
+    foreach ($rpmPkg in @(
+        "gtk2"
+        "gtk2-devel"
+        "gtk2-tools"
+        "glib2-devel"
+        ) ) {
         $downloadMingwRpmCmd = "$dmrPrefix -p $project $rpmPkg"
         Write-Host "Running $downloadMingwRpmCmd"
         cmd /c "$downloadMingwRpmCmd"
     }
 
-    $pkgName = Get-Childitem . -Name -File libcares2-1*.zip | Select -first 1
-    $pkgName = $pkgName.Replace(".zip", "");
-    $pkgVersion = $pkgName.replace("libcares2-", "");
+    $pkgName = Get-Childitem . -Name -File gtk2-2*.zip | Select -first 1
+    $pkgName = $pkgName.Replace(".zip", "")
+    $pkgVersion = $pkgName.replace("gtk2", "")
     if ( !$pkgName -or !$pkgVersion) {
         Write-Error "Can't derive package name or version"
         exit 1
@@ -75,13 +80,13 @@ foreach ($bits in @(32, 64) ) {
     $pkgName = "$pkgName-win$bits"
     
     @"
-// libcares2 OBS $project package information
+// GTK+ 2 OBS $project package information
 // DO NOT EDIT
 #defines {
     obs-win${bits}-name: $pkgName;
     obs-win${bits}-version: $pkgVersion;
 }
-"@ | Out-File -FilePath "..\..\libcares2-win${bits}-obs-info.inc" -Encoding utf8
+"@ | Out-File -FilePath "..\..\gtk2-win${bits}-obs-info.inc" -Encoding utf8
     
     Write-Host "Preparing $pkgName"
 
@@ -90,18 +95,33 @@ foreach ($bits in @(32, 64) ) {
 
     Get-Childitem ..\*.zip | foreach ($_) {
         Write-Host "Extracting $_"
-        7z x $_
+        7z x -y $_
     }
 
-    lib /machine:$machine /def:..\..\libcares-2.def /name:libcares-2.dll /out:lib\libcares-2.lib
-
-    # obs/libcares2/$bits
+    Set-Location lib
+    Get-Childitem *.def | foreach ($defFile) {
+        $baseName = $defFile.replace(".def", "")
+        $libFile = "${baseName}.lib"
+        $dllFile = "..\${baseName}.dll"
+        if (Test-Path $dllFile) {
+            Write-Host "Generating $libFile from $dllFile and $defFile"
+            lib /machine:$machine /def:$defFile /name:$dllFile /out:$libFile
+        } else {
+            Write-Host "Can't generate $libFile. Unable to find $dllFile."
+        }
+    }
+    # gtk2-<version/>-win<bits/>
     Set-Location ..
 
-    # obs/libcares2
+    lib /machine:$machine /def:..\..\..\zlib\zlib.def /name:bin\zlib1.dll /out:lib\zlib1.lib
+
+    # obs/gtk2/$bits
+    Set-Location ..
+
+    # obs/gtk2
     Set-Location ..
 }
 
 Set-Location ..\..
 
-Write-NuGetPackage .\libcares2-obs.autopackage
+# Write-NuGetPackage .\gtk2-obs.autopackage

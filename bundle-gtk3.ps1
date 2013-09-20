@@ -1,7 +1,7 @@
 Set-PSDebug -Trace 1
 
 $obsRepository = "openSUSE_12.3"
-$buildDir = "obs\libcares2"
+$buildDir = "obs\gtk3"
 
 Write-Host -NoNewline "Looking for Python 3..."
 
@@ -23,7 +23,7 @@ if ($python) {
 if (Test-Path "C:\Program Files\7-Zip") {
     $env:Path = $env:Path + ";C:\Program Files\7-Zip"
 }
-foreach ($requiredCmd in @("7z", "lib") ) {
+foreach ($requiredCmd in @("7z", "gendef", "lib") ) {
     # XXX We don't exit properly here.
     try {
         Get-Command -CommandType Application $requiredCmd
@@ -33,7 +33,7 @@ foreach ($requiredCmd in @("7z", "lib") ) {
     }
 }
 
-$dmrPrefix = "$python $pwd\externals\download-mingw-rpm\download-mingw-rpm.py -z -m -r $obsRepository"
+$dmrPrefix = "$python $pwd\externals\download-mingw-rpm\download-mingw-rpm.py -z -m --deps -r $obsRepository"
 
 if (! (Test-Path $buildDir)) {
     try {
@@ -58,16 +58,21 @@ foreach ($bits in @(32, 64) ) {
         $machine = "x64"
     }
 
-    Write-Host "Bundling libcares2 for win$bits / $machine"
-    foreach ($rpmPkg in @("libcares2", "libcares2-devel") ) {
+    Write-Host "Bundling GTK+ 3 for win$bits / $machine"
+    foreach ($rpmPkg in @(
+        "gtk3"
+        "gtk3-devel"
+        "gtk3-tools"
+        "glib2-tools"
+        ) ) {
         $downloadMingwRpmCmd = "$dmrPrefix -p $project $rpmPkg"
         Write-Host "Running $downloadMingwRpmCmd"
         cmd /c "$downloadMingwRpmCmd"
     }
 
-    $pkgName = Get-Childitem . -Name -File libcares2-1*.zip | Select -first 1
-    $pkgName = $pkgName.Replace(".zip", "");
-    $pkgVersion = $pkgName.replace("libcares2-", "");
+    $pkgName = Get-Childitem . -Name -File gtk3-3*.zip | Select -first 1
+    $pkgName = $pkgName.Replace(".zip", "")
+    $pkgVersion = $pkgName.replace("gtk3", "")
     if ( !$pkgName -or !$pkgVersion) {
         Write-Error "Can't derive package name or version"
         exit 1
@@ -75,13 +80,13 @@ foreach ($bits in @(32, 64) ) {
     $pkgName = "$pkgName-win$bits"
     
     @"
-// libcares2 OBS $project package information
+// GTK+ 3 OBS $project package information
 // DO NOT EDIT
 #defines {
     obs-win${bits}-name: $pkgName;
     obs-win${bits}-version: $pkgVersion;
 }
-"@ | Out-File -FilePath "..\..\libcares2-win${bits}-obs-info.inc" -Encoding utf8
+"@ | Out-File -FilePath "..\..\gtk3-win${bits}-obs-info.inc" -Encoding utf8
     
     Write-Host "Preparing $pkgName"
 
@@ -90,18 +95,32 @@ foreach ($bits in @(32, 64) ) {
 
     Get-Childitem ..\*.zip | foreach ($_) {
         Write-Host "Extracting $_"
-        7z x $_
+        7z x -y $_
     }
 
-    lib /machine:$machine /def:..\..\libcares-2.def /name:libcares-2.dll /out:lib\libcares-2.lib
+    Set-Location bin
+    Get-ChildItem . -File -Name "*.dll" | foreach ($_) {
+        $baseName = $_.replace(".dll", "")
+        $dllFile = "$_"
+        $defFile = "${baseName}.def"
+        $libFile = "${baseName}.lib"
 
-    # obs/libcares2/$bits
+        Write-Host "Generating $libFile from $dllFile."
+        gendef $dllFile
+        lib /machine:$machine /def:$defFile /name:$dllFile /out:$libFile
+        Move-Item $libFile ..\lib\
+        Move-Item $defFile ..\lib\
+    }
+    # gtk3-<version/>-win<bits/>
     Set-Location ..
 
-    # obs/libcares2
+    # obs/gtk3/$bits
+    Set-Location ..
+
+    # obs/gtk3
     Set-Location ..
 }
 
 Set-Location ..\..
 
-Write-NuGetPackage .\libcares2-obs.autopackage
+Write-NuGetPackage .\gtk3-obs.autopackage

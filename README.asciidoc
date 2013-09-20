@@ -1,6 +1,6 @@
-= Pinguiney
+= Introduction
 
-Convert cross-compiled Windows packages to NuGet packages.
+This is a collection of scripts that convert cross-compiled Windows packages to NuGet packages.
 
 == Description
 
@@ -8,8 +8,7 @@ GNU Autotools makes it possible to cross-compile for Windows using the appropria
 
 The OBS Windows repositories contain a lot of useful libraries and applications. Unfortunately they're locked up in RPM packages, which means they aren't readily accessible on Windows.
 
-Pinguiney takes packages from OBS and other sources and converts them to NuGet packages.
-
+These scripts convert OBS packages to NuGet packages.
 
 == Getting Started
 
@@ -21,6 +20,7 @@ Pinguiney takes packages from OBS and other sources and converts them to NuGet p
 - http://coapp.org/pages/releases.html[CoApp PowerShell tools]
 - Python 3
 - 7Zip
+- http://sourceforge.net/projects/mingw/files/MinGW/Extension/gendef/[Gendef] (GTK+ only)
 
 ☐ Make sure you have `download-mingw-rpm`.
 
@@ -29,7 +29,7 @@ git submodule init
 git submodule update
 ----
 
-☐ Create the zlib package. This runs download-mingw-rpm.py, fills in version information, and creates a NuGet package using CoApp.
+☐ Create a package. In this example we'll convert zlib. The script below runs download-mingw-rpm.py, fills in version information, and creates a NuGet package using CoApp.
 
 ----
 powershell .\bundle-zlib.ps1
@@ -39,7 +39,7 @@ powershell .\bundle-zlib.ps1
 
 . Copy bundle-zlib.ps1 and modify accordingly.
 . Copy zlib-obs.autopackage and modify accordingly.
-. The bundle script uses the Visual Studio Library Manager (`lib`) to create an import library. Chances are good that the OBS package doesn't have a .def file. You can create a .def file using one of the following methods:
+. The bundle script uses the Visual Studio Library Manager (`lib`) to create an import library. Chances are good that the OBS package doesn't have a module definition (.def) file. You can create one using one of the following methods:
   - Use the http://sourceforge.net/projects/mingw/files/MinGW/Extension/gendef/[gendef] utility
   - Use `dumpbin /exports` to get a list of symbols, then convert that to a .def file.
 . Run your bundle script: `powershell .\bundle-some-library.ps1`
