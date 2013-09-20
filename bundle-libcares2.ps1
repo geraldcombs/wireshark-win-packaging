@@ -1,7 +1,7 @@
 Set-PSDebug -Trace 1
 
 $obsRepository = "openSUSE_12.3"
-$buildDir = "obs\zlib"
+$buildDir = "obs\libcares2"
 
 Write-Host -NoNewline "Looking for Python 3..."
 
@@ -58,26 +58,26 @@ foreach ($bits in @(32, 64) ) {
         $machine = "x64"
     }
 
-    Write-Host "Bundling zlib for win$bits / $machine"
-    foreach ($rpmPkg in @("zlib", "zlib-devel") ) {
+    Write-Host "Bundling libcares2 for win$bits / $machine"
+    foreach ($rpmPkg in @("libcares2", "libcares2-devel") ) {
         $downloadMingwRpmCmd = "$dmrPrefix -p $project $rpmPkg"
         Write-Host "Running $downloadMingwRpmCmd"
         cmd /c "$downloadMingwRpmCmd"
     }
 
-    $pkgName = Get-Childitem . -Name -File zlib-1*.zip | Select -first 1
+    $pkgName = Get-Childitem . -Name -File libcares2-1*.zip | Select -first 1
     $pkgName = $pkgName.Replace(".zip", "");
-    $pkgVersion = $pkgName.replace("zlib-", "");
+    $pkgVersion = $pkgName.replace("libcares2-", "");
     $pkgName = "$pkgName-win$bits"
     
     @"
-// zlib OBS $project package information
+// libcares2 OBS $project package information
 // DO NOT EDIT
 #defines {
     obs-win${bits}-name: $pkgName;
     obs-win${bits}-version: $pkgVersion;
 }
-"@ | Out-File -FilePath "..\..\zlib-win${bits}-obs-info.inc" -Encoding utf8
+"@ | Out-File -FilePath "..\..\libcares2-win${bits}-obs-info.inc" -Encoding utf8
     
     Write-Host "Preparing $pkgName"
 
@@ -89,15 +89,15 @@ foreach ($bits in @(32, 64) ) {
         7z x $_
     }
 
-    lib /machine:$machine /def:..\..\zlib.def /name:zlib1.dll /out:lib\zlib1.lib
+    lib /machine:$machine /def:..\..\libcares-2.def /name:libcares-2.dll /out:lib\libcares-2.lib
 
-    # obs/zlib/$bits
+    # obs/libcares2/$bits
     Set-Location ..
 
-    # obs/zlib
+    # obs/libcares2
     Set-Location ..
 }
 
 Set-Location ..\..
 
-Write-NuGetPackage .\zlib-obs.autopackage
+Write-NuGetPackage .\libcares2-obs.autopackage

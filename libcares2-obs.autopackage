@@ -1,0 +1,48 @@
+// Adapted from http://coapp.org/tutorials/autopackage-guide.html
+
+// Nuget (output) package information
+@import "obs\libcares2-pkg-version.inc";
+
+// openSUSE Build Service (input) package information
+@import "obs\libcares2-win32-obs-info.inc";
+@import "obs\libcares2-win64-obs-info.inc";
+
+nuget {
+    nuspec {
+        id = libcares2-obs;
+        version : ${package-version};
+        title: libcares2 asynchronous DNS request library;
+        authors: { "Daniel Stenberg" };
+        owners: Gerald Combs;
+        licenseUrl: "http://c-ares.haxx.se/license.html";
+        projectUrl: "https://build.opensuse.org/package/show/windows:mingw:win64/mingw64-libcares2";
+        iconUrl: "http://c-ares.haxx.se.example.com/c-ares-doesnt-have-an-icon";
+        requireLicenseAcceptance:false;
+        summary: The openSUSE Build Service windows:mingw:win32 and windows:mingw:win64 libcares2 libraries;
+        description: @"A native libcares2 library linked against msvcrt.dll.
+        libcares2 homepage:  <a href='http://c-ares.haxx.se/'>http://c-ares.haxx.se/</a>";
+        releaseNotes: "Release of libcares2 1.2.7 libraries.";
+        copyright: Copyright 2013;
+        tags: { libcares2, native, obs };
+    }
+
+    files {
+        [Win32,Release] {
+            include += obs\libcares2\32\${obs-win32-name}\include\*.h;
+            bin += obs\libcares2\32\${obs-win32-name}\bin\*.dll;
+            lib += obs\libcares2\32\${obs-win32-name}\lib\*.lib;
+        }
+        [x64,Release] {
+            include += obs\libcares2\64\${obs-win64-name}\include\*.h;
+            bin += obs\libcares2\64\${obs-win64-name}\bin\*.dll;
+            lib += obs\libcares2\64\${obs-win64-name}\lib\*.lib;
+        }
+    }
+
+    targets {
+        Defines += HAVE_libcares2;
+        
+        [dynamic]
+        Defines += libcares2_DLL;
+    }
+}

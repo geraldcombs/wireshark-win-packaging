@@ -1,4 +1,5 @@
 ; zlib data compression library
+; Copied from the zlib-1.2.8 source package.
 EXPORTS
 ; basic functions
     zlibVersion

@@ -1,0 +1,45 @@
+= Pinguiney
+
+Convert cross-compiled Windows packages to NuGet packages.
+
+== Description
+
+GNU Autotools makes it possible to cross-compile for Windows using the appropriate `--host` option for `configure`. A good example of this feature is the http://build.opensuse.org[openSUSE Build Service] which creates packages for both https://build.opensuse.org/project/show?project=windows%3Amingw%3Awin32[32-bit] and https://build.opensuse.org/project/show?project=windows%3Amingw%3Awin64[64-bit] Windows for software that traditionally runs on Linux and UNIX.
+
+The OBS Windows repositories contain a lot of useful libraries and applications. Unfortunately they're locked up in RPM packages, which means they aren't readily accessible on Windows.
+
+Pinguiney takes packages from OBS and other sources and converts them to NuGet packages.
+
+
+== Getting Started
+
+☐ Prerequisites:
+
+- Windows
+- Visual Studio
+- PowerShell 3.0
+- http://coapp.org/pages/releases.html[CoApp PowerShell tools]
+- Python 3
+- 7Zip
+
+☐ Make sure you have `download-mingw-rpm`.
+
+----
+git submodule init
+git submodule update
+----
+
+☐ Create the zlib package. This runs download-mingw-rpm.py, fills in version information, and creates a NuGet package using CoApp.
+
+----
+powershell .\bundle-zlib.ps1
+----
+
+== Creating new packages
+
+. Copy bundle-zlib.ps1 and modify accordingly.
+. Copy zlib-obs.autopackage and modify accordingly.
+. The bundle script uses the Visual Studio Library Manager (`lib`) to create an import library. Chances are good that the OBS package doesn't have a .def file. You can create a .def file using one of the following methods:
+  - Use the http://sourceforge.net/projects/mingw/files/MinGW/Extension/gendef/[gendef] utility
+  - Use `dumpbin /exports` to get a list of symbols, then convert that to a .def file.
+. Run your bundle script: `powershell .\bundle-some-library.ps1`
