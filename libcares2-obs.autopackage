@@ -16,7 +16,7 @@ nuget {
         owners: Gerald Combs;
         licenseUrl: "http://c-ares.haxx.se/license.html";
         projectUrl: "https://build.opensuse.org/package/show/windows:mingw:win64/mingw64-libcares2";
-        iconUrl: "http://c-ares.haxx.se.example.com/c-ares-doesnt-have-an-icon";
+        iconUrl: "http://www.nuget.org/Content/Images/packageDefaultIcon-50x50.png";
         requireLicenseAcceptance:false;
         summary: The openSUSE Build Service windows:mingw:win32 and windows:mingw:win64 libcares2 libraries;
         description: @"A native libcares2 library linked against msvcrt.dll.
