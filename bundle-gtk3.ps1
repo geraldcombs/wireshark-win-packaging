@@ -111,6 +111,12 @@ foreach ($bits in @(32, 64) ) {
         Move-Item $libFile ..\lib\
         Move-Item $defFile ..\lib\
     }
+    
+    Get-ChildItem . -File -Name "*.exe" | foreach ($_) {
+        # Keep Chocolatey from setting up batch redirects for now.
+        echo $null > "$_.ignore"
+    }
+
     # gtk3-<version/>-win<bits/>
     Set-Location ..
 
@@ -123,4 +129,5 @@ foreach ($bits in @(32, 64) ) {
 
 Set-Location ..\..
 
-Write-NuGetPackage .\gtk3-obs.autopackage
+Write-Host "Generating package..."
+Write-NuGetPackage -Verbose .\gtk3-obs.autopackage

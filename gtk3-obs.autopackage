@@ -34,38 +34,44 @@ nuget {
         d_share = ${build_root}\share\${conditionFolder},  
     }
 
-    etc += {
-        #output {
-            package = redist;
-        };
-        #add-each-file : ::nuget.[redist]targets.[${condition}].CopyToOutput;
-        #destination : ${d_etc};  
-    }
-        
-    share += {
-        #output {
-            package = redist;
-        };
-        #add-each-file : ::nuget.[redist]targets.[${condition}].CopyToOutput;
-        #destination : ${d_share};  
-    }
-    
     files {
+        etc += {
+            #output {
+                package = redist;
+            };
+            #add-each-file : ::nuget.[redist]targets.[${condition}].CopyToOutput;
+            #destination : ${d_etc};  
+        }
+            
+        share += {
+            #output {
+                package = redist;
+            };
+            #add-each-file : ::nuget.[redist]targets.[${condition}].CopyToOutput;
+            #destination : ${d_share};  
+        }
+        
+        // Use separate include, etc, and share directories for now
+        // in case they differ between platforms.
         [Win32,Release] {
             include += obs\gtk3\32\${obs-win32-name}\include\*;
             bin += obs\gtk3\32\${obs-win32-name}\bin\*.dll;
             bin += obs\gtk3\32\${obs-win32-name}\bin\*.exe;
+            bin += obs\gtk3\32\${obs-win32-name}\bin\*.ignore;
             lib += obs\gtk3\32\${obs-win32-name}\lib\*.lib;
+            lib += obs\gtk3\32\${obs-win32-name}\lib\pkgconfig\*.pc;
             etc += obs\gtk3\32\${obs-win32-name}\etc\**\*;
-            share += obs\gtk3\32\${obs-win32-name}\share\**\*;
+            // share += obs\gtk3\32\${obs-win32-name}\share\**\*;
         }
         [x64,Release] {
             include += obs\gtk3\64\${obs-win64-name}\include\*;
             bin += obs\gtk3\64\${obs-win64-name}\bin\*.dll;
             bin += obs\gtk3\64\${obs-win64-name}\bin\*.exe;
+            bin += obs\gtk3\64\${obs-win64-name}\bin\*.ignore;
             lib += obs\gtk3\64\${obs-win64-name}\lib\*.lib;
+            lib += obs\gtk3\64\${obs-win64-name}\lib\pkgconfig\*.pc;
             etc += obs\gtk3\64\${obs-win64-name}\etc\**\*;
-            share += obs\gtk3\64\${obs-win64-name}\share\**\*;
+            // share += obs\gtk3\64\${obs-win64-name}\share\**\*;
         }
     }
 
