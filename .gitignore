@@ -1,0 +1,8 @@
+# Generated packages
+*.nupkg
+
+# OBS subdirectories
+obs/*/.
+
+# Generated OBS includes
+obs/*-info.inc
