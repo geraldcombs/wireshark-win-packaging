@@ -130,4 +130,4 @@ foreach ($bits in @(32, 64) ) {
 Set-Location ..\..
 
 Write-Host "Generating package..."
-Write-NuGetPackage -Verbose .\gtk3-obs.autopackage
+Write-NuGetPackage .\gtk3-obs.autopackage
