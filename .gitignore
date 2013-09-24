@@ -2,7 +2,7 @@
 *.nupkg
 
 # OBS subdirectories
-obs/*/.
+obs/*/*
 
 # Generated OBS includes
 obs/*-info.inc
